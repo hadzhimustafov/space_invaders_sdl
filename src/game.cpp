@@ -104,14 +104,14 @@ void Game::GameLoop()
             SDL_Delay(MsPerFrame - frame_duration);
         }
     }
-    if (_running && _gameOver)
-    {
-        while (_running)
-        {
-            drawGameOverScreen();
-            Input();
-        }
-    }
+//    if (_running && _gameOver)
+//    {
+//        while (_running)
+//        {
+//            drawGameOverScreen();
+//            Input();
+//        }
+//    }
 }
 
 void Game::Update()

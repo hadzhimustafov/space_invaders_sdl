@@ -24,8 +24,8 @@ public:
     Game();
     ~Game();
    
-    int GetScore() const { return _score; }
-    void SetScore(int score) { _score = score; }
+    std::size_t GetScore() const { return _score; }
+    void SetScore(std::size_t score) { _score = score; }
     SDL_Rect GetSize() const;
     void UpdateMousePosition(int x, int y);
     void PlaySound() const;
@@ -41,7 +41,7 @@ private:
     bool _running{false}, _gameOver{false};
     int frameCount, timerFps, lastFrame;
     int mouseX, mouseY;
-    int _score{0};
+    std::size_t _score{0};
     std::unique_ptr<Audio> _effectPtr;
     std::unique_ptr<Controller> _controllerPtr;
     std::unique_ptr<GameScene> _gameScenePtr;
