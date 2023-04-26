@@ -4,7 +4,7 @@
 
 class Player;//forward declaration
 class Game;//forward declaration
-class GameScene; //forward declaration
+class Scene; //forward declaration
 
 class Controller
 {
@@ -12,9 +12,9 @@ private:
     //not owned
     Game *_game;
 
-    void HandleKeboardState(bool &running);
+    void HandleKeyboardState(bool &running);
     void HandleMousePosition();
-    GameScene *getCurrentScene();
+    Scene *getCurrentScene();
 
 public:
     Controller(Game *game):_game(game){}

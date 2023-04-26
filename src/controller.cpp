@@ -4,7 +4,7 @@
 #include "game_scene.h"
 #include <iostream>
 
-void Controller::HandleKeboardState(bool &running)
+void Controller::HandleKeyboardState(bool &running)
 {
     SDL_Event e;
     while (SDL_PollEvent(&e))
@@ -64,13 +64,13 @@ void Controller::HandleMousePosition()
     _game->UpdateMousePosition(x, y);
 }
 
-GameScene *Controller::getCurrentScene()
+Scene *Controller::getCurrentScene()
 {
     return _game->GetCurrentScene();
 }
 
 void Controller::HandleInput(bool &running)
 {
-    HandleKeboardState(running);
+    HandleKeyboardState(running);
     HandleMousePosition();
 }

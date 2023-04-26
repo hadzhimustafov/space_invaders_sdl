@@ -114,7 +114,7 @@ bool GameScene::checkIfBulletShotSomething(const Bullet &bullet,
     return true;
 }
 
-GameScene::GameScene(Game *game) : _game(game) {
+GameScene::GameScene(Game *game) : Scene(game) {
 }
 
 GameScene::~GameScene() {

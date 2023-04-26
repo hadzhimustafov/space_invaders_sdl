@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2_TTF/SDL_ttf.h>
 #include "scene.h"
+#include "game.h"
 
 const std::string ScoreFilePath = "score.txt";
 
@@ -27,10 +28,12 @@ public:
 class GameOverScene : public Scene {
 private:
     std::unique_ptr<ScoreManager> _scoreManager;
-    std::size_t _score;
 public:
-    GameOverScene(std::size_t score);
+    explicit GameOverScene(Game *game);
     void Load() override;
+    void OnUpdate() override;
+    void OnDraw() const override;
+    void OnDrawHud(SDL_Color &color, TTF_Font *font) const override;
 };
 
 

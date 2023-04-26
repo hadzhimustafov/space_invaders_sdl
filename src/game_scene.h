@@ -5,8 +5,8 @@
 #include "bullet.h"
 #include "alien.h"
 #include "player.h"
-#include "game.h"
 #include "obstacle.h"
+#include "scene.h"
 
 constexpr std::size_t AlienWidth{50};
 constexpr std::size_t AlienHeight{30};
@@ -46,7 +46,7 @@ const std::string PlayerBulletImagePath = "res/player_laser.png";
 const std::string ObstacleImagePath = "res/metal_blocks.png";
 
 
-class GameScene
+class GameScene : public Scene
 {
 private:
     //owned
@@ -56,8 +56,6 @@ private:
     std::unique_ptr<Player> _player;
     std::size_t _bulletCounter{0};
     std::size_t _aliensWave{0};
-    // now owned
-    Game *_game;
 
     bool getIfAliensWillReachEdge();
     void moveAliens(SDL_Renderer *renderer);
@@ -74,16 +72,16 @@ private:
     template <typename T> bool checkIfBulletShotSomething(const Bullet &bullet, std::vector<std::unique_ptr<T>> &objects, CollisionDirection direction);
 
 public:
-    GameScene(Game *game);
-    ~GameScene();
-    void Load();
-    void OnUpdate();
-    void OnDraw() const;
-    void OnDrawHud(SDL_Color &color, TTF_Font *font) const;
-    void OnLeft();
-    void OnRight();
-    void OnResetHorizontal();
-    void OnPlayerShoot();
+    explicit GameScene(Game *game);
+    ~GameScene() override;
+    void Load() override;
+    void OnUpdate() override;
+    void OnDraw() const override;
+    void OnDrawHud(SDL_Color &color, TTF_Font *font) const override;
+    void OnLeft() override;
+    void OnRight() override;
+    void OnResetHorizontal() override;
+    void OnPlayerShoot() override;
 };
 
 

@@ -2,6 +2,8 @@
 #include <iostream>
 #include "cleanup.h"
 #include "game_scene.h"
+#include "scene.h"
+#include "game_over_scene.h"
 #include "controller.h"
 #include "logger.h"
 #include "audio.h"
@@ -39,7 +41,6 @@ Game::Game()
     _running = true;
 
     _controllerPtr = std::make_unique<Controller>(this);
-
     _gameScenePtr = std::make_unique<GameScene>(this);
     _gameScenePtr->Load();
     font = TTF_OpenFont("res/kenvector_future.ttf", FONT_SIZE);
@@ -77,9 +78,10 @@ void Game::GameLoop()
         //     ticksCounter++;
         // }
 
-        Render();
         Input();
         Update();
+        Render();
+
 
         frame_end = SDL_GetTicks();
 
@@ -159,7 +161,7 @@ void Game::PlaySound() const
     _effectPtr->Play();
 }
 
-GameScene *Game::GetCurrentScene() const
+Scene *Game::GetCurrentScene() const
 {
     return _gameScenePtr.get();
 }
@@ -167,6 +169,8 @@ GameScene *Game::GetCurrentScene() const
 void Game::GameOver()
 {
     _gameOver = true;
+    _gameScenePtr = std::make_unique<GameOverScene>(this);
+    _gameScenePtr->Load();
 }
 
 void Game::Input()
