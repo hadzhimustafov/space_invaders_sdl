@@ -22,7 +22,7 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 	endif()
 endif()
 
-# Look up SDL2 and add the include directory to our include path
+# Look up SDL2 and add the include directory to include path
 find_package(SDL2 REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
 find_package(SDL2_TTF REQUIRED)

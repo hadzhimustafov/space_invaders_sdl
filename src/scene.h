@@ -21,7 +21,7 @@ public:
 
     virtual void OnDraw() const = 0;
 
-    virtual void OnDrawHud(SDL_Color &color, TTF_Font *font) const = 0;
+    virtual void OnDrawHud() const = 0;
 
     virtual void OnLeft(){
 

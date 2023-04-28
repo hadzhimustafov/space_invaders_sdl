@@ -3,6 +3,7 @@
 #include <typeinfo>
 #include <iostream>
 #include "game_scene.h"
+#include "hud_manager.h"
 #include "cleanup.h"
 
 bool GameScene::getIfAliensWillReachEdge() {
@@ -141,7 +142,9 @@ void GameScene::OnUpdate() {
     checkForCollisions();
 
     if (_aliens.empty()) {
-        placeAliens(renderer);
+        //placeAliens(renderer);
+        //todo: return new wave
+        _game->GameOver();
     } else if (_player->GetIsDestroyed()) {
         _game->GameOver();
     } else  if(getIfAliensReachedTarget()){
@@ -163,13 +166,14 @@ void GameScene::OnDraw() const {
     _player->Draw(renderer);
 }
 
-void GameScene::OnDrawHud(SDL_Color &color, TTF_Font *font) const {
-    auto renderer = _game->GetRenderer();
+void GameScene::OnDrawHud() const {
+    auto hudManager = _game->GetHudManager();
+    auto ren = _game->GetRenderer();
     std::string scoreMessage{"Score:" + std::to_string(_game->GetScore())};
-    displayText(scoreMessage, 20, 20, renderer, color, font);
+    hudManager->DrawText(ren, scoreMessage.c_str(), 20, 20);
 
     std::string healthMessage{"Health: " + std::to_string(_player->GetHealth()) + "/" + std::to_string(_player->GetMaxHealth())};
-    displayText(healthMessage, SCREEN_WIDTH - 250,  20, renderer, color, font);
+    hudManager->DrawText(ren,healthMessage.c_str(), SCREEN_WIDTH - 250,  20);
 }
 
 void GameScene::OnLeft() {
@@ -242,18 +246,6 @@ void GameScene::placeAlien(std::size_t id, int x, int y, SDL_Renderer *renderer)
     alien->SetImage(AlienImagePath, renderer);
     alien->SetMovementDirection(Left);
     _aliens.emplace_back(std::move(alien));
-}
-
-void GameScene::displayText(const std::string& message, int x, int y, SDL_Renderer *renderer, SDL_Color &color, TTF_Font *font) {
-    SDL_Rect rect;
-    auto surf = TTF_RenderText_Solid(font, message.c_str(), color);
-    auto tex = SDL_CreateTextureFromSurface(renderer, surf);
-    rect.x = x;
-    rect.y = y;
-    rect.w = surf->w;
-    rect.h = surf->h;
-    SDL_RenderCopy(renderer, tex, nullptr, &rect);
-    cleanup(surf, tex);
 }
 
 void GameScene::movePlayer() {

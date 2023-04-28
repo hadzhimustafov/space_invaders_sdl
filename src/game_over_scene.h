@@ -5,7 +5,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2_TTF/SDL_ttf.h>
 #include "scene.h"
-#include "game.h"
+
+constexpr int TitleX{50};
+constexpr int TitleY{50};
+constexpr int UserNameMargin{50};
+constexpr int UserNameWidth{100};
+constexpr int UserNameHeight{30};
 
 const std::string ScoreFilePath = "score.txt";
 
@@ -20,20 +25,21 @@ private:
 public:
     typedef std::vector<std::pair<std::string, std::size_t>> scoreList;
     ScoreManager(std::string filename);
-    void Write(const ScoreEntry *entry);
+    void Append(const ScoreEntry &&entry);
     scoreList Read() const;
 };
-
 
 class GameOverScene : public Scene {
 private:
     std::unique_ptr<ScoreManager> _scoreManager;
+    std::string drawUserNameEnterScreen() const;
 public:
     explicit GameOverScene(Game *game);
     void Load() override;
     void OnUpdate() override;
     void OnDraw() const override;
-    void OnDrawHud(SDL_Color &color, TTF_Font *font) const override;
+    void OnDrawHud() const override;
+
 };
 
 

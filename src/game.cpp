@@ -2,40 +2,42 @@
 #include <iostream>
 #include "cleanup.h"
 #include "game_scene.h"
-#include "scene.h"
 #include "game_over_scene.h"
+#include "hud_manager.h"
 #include "controller.h"
 #include "logger.h"
 #include "audio.h"
 
 constexpr std::size_t SKIP_TICKS{0};
 
-Game::Game()
-{
+bool Game::TryLoadSDL() {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
         logSDLError(std::cout, "SDL_Init");
+        return false;
     }
 
-    if (TTF_Init() != 0)
-    {
-        logSDLError(std::cout, "TTF_Init");
-        SDL_Quit();
-    }
-
-    win = SDL_CreateWindow("Hello SDL!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    win = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (win == nullptr)
     {
         logSDLError(std::cout, "SDL_CreateWindow");
-        SDL_Quit();
+        return false;
     }
 
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (ren == nullptr)
     {
-        cleanup(win);
         logSDLError(std::cout, "SDL_CreateRenderer");
-        SDL_Quit();
+        return false;
+    }
+    return true;
+}
+
+Game::Game()
+{
+    _hudManager = std::make_unique<HudManager>();
+    if(!TryLoadSDL() || !_hudManager->TryLoad()){
+        return;
     }
 
     _running = true;
@@ -43,7 +45,7 @@ Game::Game()
     _controllerPtr = std::make_unique<Controller>(this);
     _gameScenePtr = std::make_unique<GameScene>(this);
     _gameScenePtr->Load();
-    font = TTF_OpenFont("res/kenvector_future.ttf", FONT_SIZE);
+
     _effectPtr = std::make_unique<Audio>();
     _effectPtr->Load("res/wav_example.wav");
     GameLoop();
@@ -53,7 +55,6 @@ Game::~Game()
 {
     cleanup(ren, win);
     SDL_Quit();
-    TTF_Quit();
 }
 
 void Game::GameLoop()
@@ -65,7 +66,7 @@ void Game::GameLoop()
     int frame_count = 0;
     int ticksCounter=0;
 
-    while (_running && !_gameOver)
+    while (_running)
     {
         lastFrame = frame_start = SDL_GetTicks();
         // todo: game speed
@@ -93,7 +94,7 @@ void Game::GameLoop()
         // After every second, update the window title.
         if (frame_end - title_timestamp >= 1000)
         {
-            UpdateWindowTitle(frame_count);
+            updateWindowTitle(frame_count);
             frame_count = 0;
             title_timestamp = frame_end;
         }
@@ -106,14 +107,6 @@ void Game::GameLoop()
             SDL_Delay(MsPerFrame - frame_duration);
         }
     }
-//    if (_running && _gameOver)
-//    {
-//        while (_running)
-//        {
-//            drawGameOverScreen();
-//            Input();
-//        }
-//    }
 }
 
 void Game::Update()
@@ -121,7 +114,7 @@ void Game::Update()
     _gameScenePtr->OnUpdate();
 }
 
-void Game::UpdateWindowTitle(int fps)
+void Game::updateWindowTitle(int fps)
 {
     std::string title{"Score: " + std::to_string(_score) + " FPS: " + std::to_string(fps)};
     SDL_SetWindowTitle(win, title.c_str());
@@ -142,11 +135,11 @@ void Game::Render()
 
 SDL_Rect Game::GetSize() const
 {
-    // int w, h;
-
-    // if(SDL_GetRendererOutputSize(ren, &w, &h) != 0){
-    //     logSDLError(std::cout, "Unable to get renderer size");
-    // };
+//     int w, h;
+//
+//     if(SDL_GetRendererOutputSize(ren, &w, &h) != 0){
+//         logSDLError(std::cout, "Unable to get renderer size");
+//     };
     return SDL_Rect{0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 }
 
@@ -161,11 +154,6 @@ void Game::PlaySound() const
     _effectPtr->Play();
 }
 
-Scene *Game::GetCurrentScene() const
-{
-    return _gameScenePtr.get();
-}
-
 void Game::GameOver()
 {
     _gameOver = true;
@@ -175,39 +163,17 @@ void Game::GameOver()
 
 void Game::Input()
 {
-    _controllerPtr->HandleInput(_running);
+    _controllerPtr->HandleInput();
 }
 
 void Game::Draw()
 {
     _gameScenePtr->OnDraw();
-    _gameScenePtr->OnDrawHud(color, font);
+    _gameScenePtr->OnDrawHud();
+}
+
+void Game::Exit() {
+  _running = false;
 }
 
 
-void Game::drawGameOverScreen()
-{
-    SDL_RenderClear(ren);
-
-    // Draw the game over message
-    SDL_Surface *gameOverSurface = TTF_RenderText_Solid(font, "Game Over", color);
-    SDL_Texture *gameOverTexture = SDL_CreateTextureFromSurface(ren, gameOverSurface);
-    SDL_Rect gameOverRect = {static_cast<int>(SCREEN_WIDTH / 2) - gameOverSurface->w / 2,
-                             static_cast<int>(SCREEN_HEIGHT / 2) - gameOverSurface->h / 2 - 50,
-                             gameOverSurface->w,
-                             gameOverSurface->h};
-    SDL_RenderCopy(ren, gameOverTexture, NULL, &gameOverRect);
-
-    // Draw the score
-    std::string scoreMessage{"Score: " + std::to_string(_score)};
-    SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreMessage.c_str(), color);
-    SDL_Texture *scoreTexture = SDL_CreateTextureFromSurface(ren, scoreSurface);
-    SDL_Rect scoreRect = {static_cast<int>(SCREEN_WIDTH / 2) - scoreSurface->w / 2,
-                          static_cast<int>(SCREEN_HEIGHT / 2) - scoreSurface->h / 2 + 50,
-                          scoreSurface->w,
-                          scoreSurface->h};
-    SDL_RenderCopy(ren, scoreTexture, NULL, &scoreRect);
-
-    // Update the screen
-    SDL_RenderPresent(ren);
-}

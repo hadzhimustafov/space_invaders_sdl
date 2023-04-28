@@ -12,7 +12,7 @@ constexpr std::size_t AlienWidth{50};
 constexpr std::size_t AlienHeight{30};
 constexpr std::size_t AlienSpacing{10};
 constexpr std::size_t AliensColumnsCount{5};
-constexpr std::size_t AliensRowsCount{5};
+constexpr std::size_t AliensRowsCount{1};
 constexpr std::size_t AlienSpeed{4};
 constexpr float AlienSpeedAcceleration{0.25f};
 constexpr int AliensKillingScore{500};
@@ -63,7 +63,6 @@ private:
     void movePlayer();
     void checkForCollisions();
     bool getIfAliensReachedTarget();
-    static void displayText(const std::string& message, int x, int y, SDL_Renderer *renderer, SDL_Color &color, TTF_Font *font) ;
     void placeObstacle(int &id, int x, SDL_Renderer *renderer);
     void placeObstacles(SDL_Renderer *renderer);
     void placeAlien(std::size_t id, int x, int y, SDL_Renderer *renderer);
@@ -77,7 +76,7 @@ public:
     void Load() override;
     void OnUpdate() override;
     void OnDraw() const override;
-    void OnDrawHud(SDL_Color &color, TTF_Font *font) const override;
+    void OnDrawHud() const override;
     void OnLeft() override;
     void OnRight() override;
     void OnResetHorizontal() override;

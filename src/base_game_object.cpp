@@ -42,15 +42,6 @@ void BaseGameObject::Draw(SDL_Renderer *ren) const
     SDL_RenderCopyEx(ren, tex, nullptr, &_position, 0, nullptr, SDL_FLIP_NONE);
 }
 
-void BaseGameObject::DrawHud(SDL_Renderer *ren, SDL_Color color, TTF_Font *font) const
-{
-    std::string scoreMessage{std::to_string(_health)};
-    auto surf = TTF_RenderText_Solid(font, scoreMessage.c_str(), color);
-    auto hudTex = SDL_CreateTextureFromSurface(ren, surf);
-    SDL_RenderCopy(ren, hudTex, nullptr, &_position);
-    cleanup(surf, hudTex);
-}
-
 bool BaseGameObject::HasCollision(const BaseGameObject &gameObject, CollisionDirection  direction) const
 {
     auto bullet = gameObject.GetPosition();

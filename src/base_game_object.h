@@ -30,7 +30,6 @@ public:
     //presentation
     void SetImage(const std::string& filename, SDL_Renderer *ren);
     virtual void Draw(SDL_Renderer *ren) const;
-    void DrawHud(SDL_Renderer *ren, SDL_Color color, TTF_Font *font) const;
     //movement
     void SetMovementDirection(MovementDirection direction);
     MovementDirection GetMovementDirection() const{return _direction;}

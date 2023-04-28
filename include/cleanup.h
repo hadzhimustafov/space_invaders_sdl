@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <SDL2/SDL.h>
+#include <SDL2_TTF/SDL_ttf.h>
 
 /*
  * Recurse through the list of arguments to clean up, cleaning up
@@ -58,6 +59,15 @@ inline void cleanup<SDL_Surface>(SDL_Surface *surf)
         return;
     }
     SDL_FreeSurface(surf);
+}
+template <>
+inline void cleanup<TTF_Font>(TTF_Font *font)
+{
+    if (!font)
+    {
+        return;
+    }
+    TTF_CloseFont(font);
 }
 
 #endif
