@@ -16,7 +16,7 @@ void GameOverScene::Load() {
 void GameOverScene::OnDrawHud() const {
     auto hudManager = _game->GetHudManager();
     auto ren = _game->GetRenderer();
-    // Draw the game over message
+
     hudManager->DrawText(ren, "Game Over", TITLE_X, TITLE_Y);
 
     for (int i = 1; i <= _scoreEntries.size(); i++) {

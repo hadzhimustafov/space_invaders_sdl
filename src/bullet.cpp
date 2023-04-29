@@ -4,6 +4,4 @@ Bullet::Bullet(std::size_t id, int x, int y, int w, int h) : BaseGameObject(x, y
 {
 }
 
-Bullet::~Bullet()
-{
-}
+Bullet::~Bullet()= default;

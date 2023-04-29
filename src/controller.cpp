@@ -3,19 +3,13 @@
 #include "scene.h"
 
 
-void Controller::HandleKeyboardState(Scene &scene)
-{
+void Controller::HandleKeyboardState(Scene &scene) {
     SDL_Event e;
-    while (SDL_PollEvent(&e))
-    {
-        if (e.type == SDL_QUIT)
-        {
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_QUIT) {
             scene.OnExit();
-        }
-        else if (e.type == SDL_KEYDOWN)
-        {
-            switch (e.key.keysym.sym)
-            {
+        } else if (e.type == SDL_KEYDOWN) {
+            switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
                     scene.OnExit();
                     break;
@@ -31,11 +25,8 @@ void Controller::HandleKeyboardState(Scene &scene)
                 default:
                     break;
             }
-        }
-        else if (e.type == SDL_KEYUP)
-        {
-            switch (e.key.keysym.sym)
-            {
+        } else if (e.type == SDL_KEYUP) {
+            switch (e.key.keysym.sym) {
                 case SDLK_LEFT:
                 case SDLK_RIGHT:
                     scene.OnResetHorizontal();
@@ -47,26 +38,25 @@ void Controller::HandleKeyboardState(Scene &scene)
     }
 }
 
-void Controller::HandleInput(Scene &scene)
-{
+void Controller::HandleInput(Scene &scene) {
     HandleKeyboardState(scene);
     //todo: handle mouse position, controller, etc.
 }
 
-void Controller::HandleTextInput(std::string &name, const std::function<void()>& callback) {
+void Controller::HandleTextInput(std::string &name, const std::function<void()> &callback) {
     SDL_StartTextInput();
     bool isTyping{true};
 
     while (isTyping) {
         SDL_Event e;
-        while(SDL_PollEvent(&e)) {
+        while (SDL_PollEvent(&e)) {
             switch (e.type) {
                 case SDL_TEXTINPUT:
                     name.append(e.text.text);
                     callback();
                     break;
-                case SDL_KEYDOWN:{
-                    switch (e.key.keysym.sym){
+                case SDL_KEYDOWN: {
+                    switch (e.key.keysym.sym) {
                         case SDLK_BACKSPACE:
                             name.pop_back();
                             callback();
