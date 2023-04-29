@@ -8,35 +8,30 @@
 
 class Scene {
 protected:
-    Game * _game;
+    Game *_game;
 public:
-    explicit Scene(Game *game) : _game(game){ }
-    virtual ~Scene(){
+    explicit Scene(Game *game) : _game(game) {}
 
-    }
+    virtual ~Scene() = default;
 
     virtual void Load() = 0;
 
-    virtual void OnUpdate() = 0;
+    virtual void OnUpdate() {}
 
-    virtual void OnDraw() const = 0;
+    virtual void OnDraw() const {}
 
-    virtual void OnDrawHud() const = 0;
+    virtual void OnDrawHud() const {}
 
-    virtual void OnLeft(){
+    virtual void OnLeft() {}
 
-    }
+    virtual void OnRight() {}
 
-    virtual void OnRight(){
+    virtual void OnResetHorizontal() {}
 
-    }
+    virtual void OnPlayerShoot() {}
 
-    virtual void OnResetHorizontal(){
-
-    }
-
-    virtual void OnPlayerShoot(){
-
+    virtual void OnExit() const {
+        _game->Exit();
     }
 };
 

@@ -15,12 +15,12 @@
 
 // /// @brief Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving the texture's width and height
 // /// @param tex The source texture we want to draw
-// /// @param ren The renderer we want to draw to
+// /// @param _renderer The renderer we want to draw to
 // /// @param x The x coordinate to draw to
 // /// @param y The y coordinate to draw to
 // /// @param w The width of texture to draw
 // /// @param h The height of texture to draw
-// void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y, int w, int h)
+// void renderTexture(SDL_Texture *tex, SDL_Renderer *_renderer, int x, int y, int w, int h)
 // {
 //     // Setup the destination rectangle to be at the position we want
 //     SDL_Rect dist;
@@ -28,19 +28,19 @@
 //     dist.y = y;
 //     dist.h = h;
 //     dist.w = w;
-//     SDL_RenderCopy(ren, tex, nullptr, &dist);
+//     SDL_RenderCopy(_renderer, tex, nullptr, &dist);
 // }
 
 // /// @brief Draw an SDL_Texture to an SDL_Renderer at position x, y, preserving the texture's width and height
 // /// @param tex The source texture we want to draw
-// /// @param ren The renderer we want to draw to
+// /// @param _renderer The renderer we want to draw to
 // /// @param x The x coordinate to draw to
 // /// @param y The y coordinate to draw to
-// void renderTexture(SDL_Texture *tex, SDL_Renderer *ren, int x, int y)
+// void renderTexture(SDL_Texture *tex, SDL_Renderer *_renderer, int x, int y)
 // {
 //     int w, h;
 //     SDL_QueryTexture(tex, nullptr, nullptr, &w, &h);
-//     renderTexture(tex, ren, x, y, w, h);
+//     renderTexture(tex, _renderer, x, y, w, h);
 // }
 
 // void render(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *image)

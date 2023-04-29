@@ -6,78 +6,59 @@
 #include "hud_manager.h"
 #include "controller.h"
 #include "logger.h"
-#include "audio.h"
-
-constexpr std::size_t SKIP_TICKS{0};
 
 bool Game::TryLoadSDL() {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-    {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         logSDLError(std::cout, "SDL_Init");
         return false;
     }
 
-    win = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (win == nullptr)
-    {
+    _window = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
+                               SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (_window == nullptr) {
         logSDLError(std::cout, "SDL_CreateWindow");
         return false;
     }
 
-    ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (ren == nullptr)
-    {
+    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (_renderer == nullptr) {
         logSDLError(std::cout, "SDL_CreateRenderer");
         return false;
     }
     return true;
 }
 
-Game::Game()
-{
+Game::Game() {
     _hudManager = std::make_unique<HudManager>();
-    if(!TryLoadSDL() || !_hudManager->TryLoad()){
+    if (!TryLoadSDL() || !_hudManager->TryLoad()) {
         return;
     }
 
+    _username = getUserName();
     _running = true;
 
-    _controllerPtr = std::make_unique<Controller>(this);
-    _gameScenePtr = std::make_unique<GameScene>(this);
-    _gameScenePtr->Load();
+    _controller = std::make_unique<Controller>();
+    _currentScene = std::make_unique<GameScene>(this);
+    _currentScene->Load();
 
-    _effectPtr = std::make_unique<Audio>();
-    _effectPtr->Load("res/wav_example.wav");
     GameLoop();
 }
 
-Game::~Game()
-{
-    cleanup(ren, win);
+Game::~Game() {
+    cleanup(_renderer, _window);
     SDL_Quit();
 }
 
-void Game::GameLoop()
-{
+void Game::GameLoop() {
+
     Uint32 title_timestamp = SDL_GetTicks();
     Uint32 frame_start;
     Uint32 frame_end;
     Uint32 frame_duration;
     int frame_count = 0;
-    int ticksCounter=0;
 
-    while (_running)
-    {
-        lastFrame = frame_start = SDL_GetTicks();
-        // todo: game speed
-        // if(ticksCounter >  SKIP_TICKS){
-        //     ticksCounter = 0;
-        //     Render();
-        //     Input();
-        //     Update();
-        // }else{
-        //     ticksCounter++;
-        // }
+    while (_running) {
+        frame_start = SDL_GetTicks();
 
         Input();
         Update();
@@ -92,8 +73,7 @@ void Game::GameLoop()
         frame_duration = frame_end - frame_start;
 
         // After every second, update the window title.
-        if (frame_end - title_timestamp >= 1000)
-        {
+        if (frame_end - title_timestamp >= 1000) {
             updateWindowTitle(frame_count);
             frame_count = 0;
             title_timestamp = frame_end;
@@ -102,78 +82,66 @@ void Game::GameLoop()
         // If the time for this frame is too small (i.e. frame_duration is
         // smaller than the target ms_per_frame), delay the loop to
         // achieve the correct frame rate.
-        if (frame_duration < MsPerFrame)
-        {
+        if (frame_duration < MsPerFrame) {
             SDL_Delay(MsPerFrame - frame_duration);
         }
     }
 }
 
-void Game::Update()
-{
-    _gameScenePtr->OnUpdate();
+void Game::Update() {
+    _currentScene->OnUpdate();
 }
 
-void Game::updateWindowTitle(int fps)
-{
-    std::string title{"Score: " + std::to_string(_score) + " FPS: " + std::to_string(fps)};
-    SDL_SetWindowTitle(win, title.c_str());
+void Game::updateWindowTitle(int fps) {
+    std::string title{WINDOW_TITLE + " FPS: " + std::to_string(fps)};
+    SDL_SetWindowTitle(_window, title.c_str());
 }
 
-void Game::Render()
-{
+void Game::Render() {
     //clear screen
-    SDL_RenderClear(ren);
-//    SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+    SDL_RenderClear(_renderer);
 
-    //Draw  Game Objects
-    Draw();
+    //Draw Game Objects
+    _currentScene->OnDraw();
+    _currentScene->OnDrawHud();
 
     //Render  drawings
-    SDL_RenderPresent(ren);
+    SDL_RenderPresent(_renderer);
 }
 
-SDL_Rect Game::GetSize() const
-{
-//     int w, h;
-//
-//     if(SDL_GetRendererOutputSize(ren, &w, &h) != 0){
-//         logSDLError(std::cout, "Unable to get renderer size");
-//     };
+SDL_Rect Game::GetSize() {
     return SDL_Rect{0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 }
 
-void Game::UpdateMousePosition(int x, int y)
-{
-    mouseX = x;
-    mouseY = y;
+
+void Game::GameOver() {
+    _currentScene = std::make_unique<GameOverScene>(this, _username);
+    _currentScene->Load();
 }
 
-void Game::PlaySound() const
-{
-    _effectPtr->Play();
-}
-
-void Game::GameOver()
-{
-    _gameOver = true;
-    _gameScenePtr = std::make_unique<GameOverScene>(this);
-    _gameScenePtr->Load();
-}
-
-void Game::Input()
-{
-    _controllerPtr->HandleInput();
-}
-
-void Game::Draw()
-{
-    _gameScenePtr->OnDraw();
-    _gameScenePtr->OnDrawHud();
+void Game::Input() {
+    _controller->HandleInput(*_currentScene);
 }
 
 void Game::Exit() {
-  _running = false;
+    _running = false;
+}
+
+std::string Game::getUserName() {
+    std::string username{};
+    SDL_RenderClear(_renderer);
+    _hudManager->DrawText(_renderer,"Enter Name: ", TITLE_X, TITLE_Y);
+    SDL_RenderPresent(_renderer);
+
+    auto userInputCallback = [this, &username](){
+        SDL_RenderClear(_renderer);
+        _hudManager->DrawText(_renderer,"Enter Name: ", TITLE_X, TITLE_Y);
+        _hudManager->DrawText(_renderer, username.c_str(), TITLE_X,TITLE_Y + USERNAME_MARGIN);
+        SDL_RenderPresent(_renderer);
+    };
+
+    Controller::HandleTextInput(username, userInputCallback);
+    return std::move(username);
 }
 
 
