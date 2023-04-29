@@ -26,17 +26,16 @@ endif()
 find_package(SDL2 REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
 find_package(SDL2_TTF REQUIRED)
-find_package(SDL2_mixer REQUIRED)
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ${SDL2_TTF_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIRS} include src)
 
-file(GLOB SRC_CPP_FILES "src/*.cpp")
+file(GLOB SRC_CPP_FILES "src/*.cpp", "src/**/*.cpp")
 
 #executable
 add_executable(SpaceInvaders ${SRC_CPP_FILES})
-target_link_libraries(SpaceInvaders ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARIES})
+target_link_libraries(SpaceInvaders ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${SDL2_TTF_LIBRARY})
 install(TARGETS SpaceInvaders RUNTIME DESTINATION ${BIN_DIR})
 
-
+#copy resources
 if (NOT ${PROJECT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
 	file(COPY "${PROJECT_SOURCE_DIR}/res" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()

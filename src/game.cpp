@@ -1,8 +1,8 @@
 #include "game.h"
 #include <iostream>
 #include "cleanup.h"
-#include "game_scene.h"
-#include "game_over_scene.h"
+#include "scenes/game_scene.h"
+#include "scenes/game_over_scene.h"
 #include "hud_manager.h"
 #include "controller.h"
 #include "logger.h"

@@ -1,10 +1,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <SDL2_TTF/SDL_ttf.h>
-#include <SDL2/SDL.h>
-#include <string>
-#include "game.h"
+#include "../game.h"
 
 class Scene {
 protected:

@@ -1,6 +1,5 @@
 #include "game_over_scene.h"
-#include "game.h"
-#include "hud_manager.h"
+#include "../hud_manager.h"
 
 
 GameOverScene::GameOverScene(Game *game, std::string username) : Scene(game), _username(std::move(username)) {

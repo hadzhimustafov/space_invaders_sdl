@@ -2,9 +2,9 @@
 #define BASE_GAME_OBJECT_H
 
 #include <string>
-#include <SDL2/SDL.h>
-#include <SDL2_IMAGE/SDL_image.h>
-#include <SDL2_TTF/SDL_ttf.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#include <SDL_ttf.h>
 
 enum CollisionDirection{Up, Down};
 enum MovementDirection{None, Left, Right};

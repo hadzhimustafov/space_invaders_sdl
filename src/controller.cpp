@@ -1,6 +1,6 @@
 #include <iostream>
 #include "controller.h"
-#include "scene.h"
+#include "scenes/scene.h"
 
 
 void Controller::HandleKeyboardState(Scene &scene) {

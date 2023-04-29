@@ -3,8 +3,7 @@
 #include <typeinfo>
 #include <iostream>
 #include "game_scene.h"
-#include "hud_manager.h"
-#include "cleanup.h"
+#include "../hud_manager.h"
 
 bool GameScene::getIfAliensWillReachEdge() {
     auto renderSize = _game->GetSize();

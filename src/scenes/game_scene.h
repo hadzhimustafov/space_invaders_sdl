@@ -2,10 +2,10 @@
 #define GAME_SCENE_H
 
 #include <vector>
-#include "bullet.h"
-#include "alien.h"
-#include "player.h"
-#include "obstacle.h"
+#include "game_objects/bullet.h"
+#include "game_objects/alien.h"
+#include "game_objects/player.h"
+#include "game_objects/obstacle.h"
 #include "scene.h"
 
 constexpr std::size_t AlienWidth{50};

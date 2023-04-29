@@ -2,7 +2,7 @@
 #define GAME_OVER_SCENE_H
 
 #include "scene.h"
-#include "score_manager.h"
+#include "../score_manager.h"
 
 constexpr std::size_t ScoreBoardPlaces{10};
 
