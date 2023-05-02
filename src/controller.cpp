@@ -58,11 +58,15 @@ void Controller::HandleTextInput(std::string &name, const std::function<void()> 
                 case SDL_KEYDOWN: {
                     switch (e.key.keysym.sym) {
                         case SDLK_BACKSPACE:
-                            name.pop_back();
-                            callback();
+                            if (!name.empty()) {
+                                name.pop_back();
+                                callback();
+                            }
                             break;
-                        case SDLK_RETURN:
                         case SDL_QUIT:
+                        case SDLK_ESCAPE:
+                            name.clear();
+                        case SDLK_RETURN:
                             isTyping = false;
                             break;
                     }

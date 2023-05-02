@@ -6,14 +6,13 @@
 #include "../hud_manager.h"
 
 bool GameScene::getIfAliensWillReachEdge() {
-    auto renderSize = _game->GetSize();
+    auto renderSize = Game::GetSize();
     auto checkIfAlienWillReachEdgePredicate = [&renderSize](std::unique_ptr<Alien> &a) {
         return a->WillReachEdge(renderSize.x, renderSize.w);
     };
     return std::any_of(_aliens.begin(), _aliens.end(), checkIfAlienWillReachEdgePredicate);
 }
 
-// todo: split & rename: |move|shoot|die|
 void GameScene::moveAliens(SDL_Renderer *renderer) {
     bool aliensReachEdge = getIfAliensWillReachEdge();
 
@@ -28,7 +27,7 @@ void GameScene::moveAliens(SDL_Renderer *renderer) {
         auto y = aliensReachEdge ? position.y + position.h / 2 : position.y;
         alien->SetPosition(x, y);
         if (alien->GetIfTimeToShoot()) {
-            auto bulletX = x + AlienWidth / 2 - BulletWidth / 2;
+            auto bulletX = x + static_cast<int>(AlienWidth / 2) - static_cast<int>(BulletWidth / 2);
             auto bulletY = y + AlienHeight;
             _bulletCounter++;
             auto bullet = std::make_unique<Bullet>(_bulletCounter, bulletX, bulletY, BulletWidth, BulletHeight);
@@ -44,7 +43,7 @@ void GameScene::moveBullets() {
     for (std::unique_ptr<Bullet> &bullet: _bullets) {
         auto position = bullet->GetPosition();
         auto speed = bullet->GetSpeed();
-        std::size_t y = position.y + speed;
+        float y = position.y + speed;
         bullet->SetPosition(position.x, y);
     }
 }

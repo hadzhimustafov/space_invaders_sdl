@@ -26,6 +26,8 @@ std::vector<ScoreEntry> ScoreManager::read() {
                 entries.emplace_back(std::move(name), score);
             }
         }
+    }else {
+        std::cout << "Failed to open file: " << _filename << std::endl;
     }
     return entries;
 }
@@ -44,7 +46,7 @@ void ScoreManager::write() {
         }
         file.close();
     } else {
-        std::cout << "Failed to open file." << std::endl;
+        std::cout << "Failed to open file: " << _filename << std::endl;
     }
 }
 

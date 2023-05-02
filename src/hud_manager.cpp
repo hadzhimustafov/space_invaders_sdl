@@ -17,7 +17,18 @@ bool HudManager::TryLoad() {
 
 void HudManager::DrawText(SDL_Renderer *ren, const char *text, int x, int y) const {
     auto surface = TTF_RenderText_Solid(_font, text, color);
+    if(surface == nullptr){
+        logSDLError(std::cout, "Failed to draw text");
+        return;
+    }
+
     auto texture = SDL_CreateTextureFromSurface(ren, surface);
+    if(texture == nullptr){
+        logSDLError(std::cout, "Failed to draw text");
+        cleanup(surface);
+        return;
+    }
+
     SDL_Rect position{x, y, surface->w, surface->h};
     SDL_RenderCopy(ren, texture, nullptr, &position);
     cleanup(surface, texture);

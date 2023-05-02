@@ -22,21 +22,30 @@ constexpr int TITLE_X{50};
 constexpr int TITLE_Y{50};
 constexpr int USERNAME_MARGIN{50};
 
-class Game
-{
+class Game {
 public:
     Game();
+
     ~Game();
-   
+
     [[nodiscard]] std::size_t GetScore() const { return _score; }
+
     void SetScore(std::size_t score) { _score = score; }
-    [[nodiscard]] static SDL_Rect GetSize() ;
-    [[nodiscard]] Scene *GetCurrentScene() const{return _currentScene.get();}
+
+    [[nodiscard]] static SDL_Rect GetSize();
+
+    [[nodiscard]] Scene *GetCurrentScene() const { return _currentScene.get(); }
+
     [[nodiscard]] SDL_Renderer *GetRenderer() const { return _renderer; }
-    [[nodiscard]] Controller *GetController() const { return _controller.get();}
-    [[nodiscard]] HudManager *GetHudManager() const {return _hudManager.get(); }
+
+    [[nodiscard]] Controller *GetController() const { return _controller.get(); }
+
+    [[nodiscard]] HudManager *GetHudManager() const { return _hudManager.get(); }
+
     void GameOver();
+
     void Exit();
+
 private:
     //owned resources
     SDL_Renderer *_renderer{};
@@ -48,15 +57,21 @@ private:
     std::string _username;
     std::shared_ptr<Controller> _controller;
     std::unique_ptr<Scene> _currentScene;
-    std::unique_ptr<HudManager>_hudManager;
+    std::unique_ptr<HudManager> _hudManager;
     //not owned resources
 
     bool TryLoadSDL();
+
     void GameLoop();
+
     void Update();
+
     void Input();
+
     void Render();
+
     void updateWindowTitle(int fps);
+
     std::string getUserName();
 
 };

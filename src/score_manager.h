@@ -58,7 +58,7 @@ public:
 
     void Append(const char *name, std::size_t score);
 
-    std::vector<ScoreEntry> GetTop(std::size_t n) const;
+    [[nodiscard]] std::vector<ScoreEntry> GetTop(std::size_t n) const;
 };
 
 #endif

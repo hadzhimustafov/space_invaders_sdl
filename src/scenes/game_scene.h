@@ -11,8 +11,8 @@
 constexpr std::size_t AlienWidth{50};
 constexpr std::size_t AlienHeight{30};
 constexpr std::size_t AlienSpacing{10};
-constexpr std::size_t AliensColumnsCount{5};
-constexpr std::size_t AliensRowsCount{1};
+constexpr std::size_t AliensColumnsCount{7};
+constexpr std::size_t AliensRowsCount{5};
 constexpr std::size_t AlienSpeed{4};
 constexpr float AlienSpeedAcceleration{0.25f};
 constexpr int AliensKillingScore{500};

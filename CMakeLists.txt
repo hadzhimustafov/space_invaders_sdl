@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11.3)
+cmake_minimum_required(VERSION 3.7)
 project(SpaceInvaders)
 
 # Use our modified FindSDL2* modules

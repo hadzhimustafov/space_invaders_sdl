@@ -35,6 +35,7 @@ Game::Game() {
     }
 
     _username = getUserName();
+    if(_username.empty()) return;
     _running = true;
 
     _controller = std::make_unique<Controller>();
@@ -131,6 +132,7 @@ std::string Game::getUserName() {
     std::string username{};
     SDL_RenderClear(_renderer);
     _hudManager->DrawText(_renderer,"Enter Name: ", TITLE_X, TITLE_Y);
+    _hudManager->DrawText(_renderer, "Press <ENTER> to confirm or <ESC> to cancel", TITLE_X, SCREEN_HEIGHT - TITLE_Y);
     SDL_RenderPresent(_renderer);
 
     auto userInputCallback = [this, &username](){

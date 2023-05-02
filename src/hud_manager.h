@@ -13,14 +13,14 @@ private:
 
 public:
 
-    ~HudManager(){
-        std::cout << "HUD manager destructor started \n";
+    ~HudManager() {
         cleanup(_font);
-        std::cout << "HUD manager destructor finished \n";
         TTF_Quit();
     }
+
     bool TryLoad();
-    void DrawText(SDL_Renderer *ren, const char* text, int x, int  y) const;
+
+    void DrawText(SDL_Renderer *ren, const char *text, int x, int y) const;
 };
 
 
