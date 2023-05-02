@@ -4,8 +4,8 @@
 #include <random>
 #include <memory>
 #include <SDL2/SDL.h>
-#include <SDL2_IMAGE/SDL_image.h>
-#include <SDL2_TTF/SDL_ttf.h>
+#include <SDL2_image/SDL_image.h>
+#include <SDL2_ttf/SDL_ttf.h>
 
 class Controller; // forward declaration
 class Scene;  // forward declaration
