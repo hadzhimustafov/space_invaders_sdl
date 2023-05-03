@@ -2,7 +2,6 @@
 #define GAME_H
 
 #include <random>
-#include <memory>
 #include <SDL2/SDL.h>
 #if defined(macintosh) || defined(Macintosh) || defined(__APPLE__)
 #include <SDL2_image/SDL_image.h>

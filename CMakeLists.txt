@@ -5,7 +5,8 @@ project(SpaceInvaders)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${SpaceInvaders_SOURCE_DIR}/cmake")
 # Set an output directory for our binaries
 set(BIN_DIR ${SpaceInvaders_SOURCE_DIR}/bin)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
 # Bump up warning levels appropriately for clang, gcc & msvc
 # Also set debug/optimization flags depending on the build type. IDE users choose this when

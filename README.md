@@ -24,6 +24,10 @@ Space Invaders is a classic arcade game developed using SDL2 library in C++. The
 3. Compile: `cmake .. && make`
 4. Run it: `./SpaceInvaders`.
 
+On Linux:
+1. Clone this repo.
+2. `bash play_linux.sh`
+
 ## How to Play
 - Use the arrow keys to move your spaceship left and right.
 - Press the spacebar to shoot missiles at the aliens.
@@ -49,5 +53,4 @@ Space Invaders is a classic arcade game developed using SDL2 library in C++. The
 - *cleanup.h*: This file contains methods for releasing resources acquired by SDL2
 - *logger.h*: This file contains methods for logging internal SDL2 errors
 
-## Rubric points addressed:
-#todo:#
+## [Rubric points addressed](UdacityRubric.md)
