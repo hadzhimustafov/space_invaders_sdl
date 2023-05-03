@@ -3,7 +3,11 @@
 
 #include <utility>
 #include <SDL2/SDL.h>
-#include <SDL2_TTF/SDL_ttf.h>
+#if defined(macintosh) || defined(Macintosh) || defined(__APPLE__)
+#include <SDL2_ttf/SDL_ttf.h>
+#else
+#include <SDL2/SDL_ttf.h>
+#endif
 
 /*
  * Recurse through the list of arguments to clean up, cleaning up

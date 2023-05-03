@@ -4,8 +4,11 @@
 #include <random>
 #include <memory>
 #include <SDL2/SDL.h>
+#if defined(macintosh) || defined(Macintosh) || defined(__APPLE__)
 #include <SDL2_image/SDL_image.h>
-#include <SDL2_ttf/SDL_ttf.h>
+#else
+#include <SDL2/SDL_image.h>
+#endif
 
 class Controller; // forward declaration
 class Scene;  // forward declaration

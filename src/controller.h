@@ -1,6 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include <functional>
+
 class Scene; //forward declaration
 
 class Controller {
