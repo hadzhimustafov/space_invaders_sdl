@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <memory>
 #include <random>
 #include <SDL2/SDL.h>
 #if defined(macintosh) || defined(Macintosh) || defined(__APPLE__)
