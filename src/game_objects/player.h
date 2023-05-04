@@ -5,13 +5,9 @@
 
 class Player : public BaseGameObject
 {
-private:
-    //owned resources
-
-    //not owned resources
 public:
     Player(int x, int y, int w, int h, float playerAcceleration, std::size_t maxHealth);
-    ~Player();
+    void Move();
 };
 
 

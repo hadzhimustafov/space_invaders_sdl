@@ -65,6 +65,8 @@ void Controller::HandleTextInput(std::string &name, const std::function<void()> 
                             break;
                         case SDL_QUIT:
                         case SDLK_ESCAPE:
+                            //clear name after ESC, intentional fallthrough
+                            //todo: decide <DRY principle> vs <fallthrough>
                             name.clear();
                         case SDLK_RETURN:
                             isTyping = false;

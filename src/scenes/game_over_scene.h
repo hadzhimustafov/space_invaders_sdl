@@ -3,6 +3,7 @@
 
 #include "scene.h"
 #include "../score_manager.h"
+#include "score_entry.h"
 
 constexpr std::size_t ScoreBoardPlaces{10};
 

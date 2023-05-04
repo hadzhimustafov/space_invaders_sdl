@@ -5,43 +5,9 @@
 #include <string>
 #include <istream>
 #include <iostream>
+#include "score_entry.h"
 
 const std::string ScoreFilePath = "score.txt";
-
-class ScoreEntry {
-public:
-    ScoreEntry(std::string name, std::size_t score) : name(std::move(name)), score(score) {} //1: ctor
-    ScoreEntry(const ScoreEntry &entry) : name(entry.name), score(entry.score) {
-
-    } // 2: copy ctor
-    ScoreEntry &operator=(const ScoreEntry &entry) {   //3: copy assignment operator
-        std::cout << "copy ctor\n";
-        if (this == &entry) {
-            return *this;
-        }
-        name = entry.name;
-        score = entry.score;
-        return *this;
-    }
-
-    ScoreEntry(ScoreEntry &&entry) noexcept { //4:move ctor
-        std::cout << "move ctor\n";
-        name = std::move(entry.name);
-        score = entry.score;
-    }
-
-    ScoreEntry &operator=(ScoreEntry &&entry) noexcept { //5:move assignment operator
-        if (this == &entry) {
-            return *this;
-        }
-        name = std::move(entry.name);
-        score = entry.score;
-        return *this;
-    }
-
-    std::string name;
-    std::size_t score;
-};
 
 
 class ScoreManager {

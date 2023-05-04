@@ -16,9 +16,9 @@ class HudManager;  // forward declaration
 
 constexpr std::size_t FramesPerSecond{60};
 constexpr std::size_t MsPerFrame{1000 / FramesPerSecond};
-constexpr std::size_t SCREEN_WIDTH{1280};
-constexpr std::size_t SCREEN_HEIGHT{720};
-constexpr std::size_t OBSTACLE_POSITION{500};
+constexpr int SCREEN_WIDTH{1280};
+constexpr int SCREEN_HEIGHT{720};
+constexpr int OBSTACLE_POSITION{500};
 constexpr std::size_t FONT_SIZE{32};
 const std::string WINDOW_TITLE{"Space Invaders"};
 constexpr int TITLE_X{50};
@@ -37,11 +37,7 @@ public:
 
     [[nodiscard]] static SDL_Rect GetSize();
 
-    [[nodiscard]] Scene *GetCurrentScene() const { return _currentScene.get(); }
-
     [[nodiscard]] SDL_Renderer *GetRenderer() const { return _renderer; }
-
-    [[nodiscard]] Controller *GetController() const { return _controller.get(); }
 
     [[nodiscard]] HudManager *GetHudManager() const { return _hudManager.get(); }
 
@@ -55,7 +51,6 @@ private:
     SDL_Window *_window{};
 
     bool _running{false};
-    int frameCount{0}, timerFps{0}, lastFrame{0};
     std::size_t _score{0};
     std::string _username;
     std::shared_ptr<Controller> _controller;

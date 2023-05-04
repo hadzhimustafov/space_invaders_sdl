@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 #include <typeinfo>
 #include <iostream>
 #include "game_scene.h"
@@ -14,62 +14,51 @@ bool GameScene::getIfAliensWillReachEdge() {
 }
 
 void GameScene::moveAliens(SDL_Renderer *renderer) {
-    bool aliensReachEdge = getIfAliensWillReachEdge();
+    bool changeDirection = getIfAliensWillReachEdge();
 
-    for (std::unique_ptr<Alien> &alien: _aliens) {
-        auto direction = alien->GetMovementDirection();
-        if(aliensReachEdge) {
-            direction = direction == Left ? Right : Left;
-            alien->SetMovementDirection(direction);
+    for (auto &&alien: _aliens) {
+        if (changeDirection) {
+            alien->ToggleDirection();
+        } else {
+            alien->Move();
         }
-        auto position = alien->GetPosition();
-        auto x = position.x + alien->GetUpdatedCurrentSpeed();
-        auto y = aliensReachEdge ? position.y + position.h / 2 : position.y;
-        alien->SetPosition(x, y);
+
         if (alien->GetIfTimeToShoot()) {
-            auto bulletX = x + static_cast<int>(AlienWidth / 2) - static_cast<int>(BulletWidth / 2);
-            auto bulletY = y + AlienHeight;
-            _bulletCounter++;
-            auto bullet = std::make_unique<Bullet>(_bulletCounter, bulletX, bulletY, BulletWidth, BulletHeight);
-            bullet->SetImage(AlienBulletImagePath, renderer);
-            bullet->SetIsAlien(true);
-            bullet->SetSpeed(BulletSpeed);
-            _bullets.emplace_back(std::move(bullet));
+            auto alienPosition = alien->GetPosition();
+            auto bulletX = alienPosition.x + alienPosition.w / 2 - BulletWidth / 2;
+            auto bulletY = alienPosition.y + alienPosition.h;
+            placeBullet(bulletX, bulletY, true, renderer);
         }
     }
 }
 
 void GameScene::moveBullets() {
-    for (std::unique_ptr<Bullet> &bullet: _bullets) {
-        auto position = bullet->GetPosition();
-        auto speed = bullet->GetSpeed();
-        float y = position.y + speed;
-        bullet->SetPosition(position.x, y);
+    for (auto &&bullet: _bullets) {
+        bullet->Move();
     }
 }
 
-void GameScene::checkForCollisions() {
+void GameScene::applyCollisions() {
     bool hit = false;
     CollisionDirection direction;
 
     for (auto &&bullet: _bullets) {
-        Bullet &bulletRef = *bullet;
         hit = false;
-        direction = bulletRef.GetIsAlien() ? CollisionDirection::Down : CollisionDirection::Up;
-        hit = checkIfBulletShotSomething(bulletRef, _obstacles, direction);
+        direction = bullet->GetIsAlien() ? CollisionDirection::Down : CollisionDirection::Up;
+        hit = checkIfBulletHitSomething(bullet.get(), _obstacles, direction);
         if (!hit && direction == CollisionDirection::Up) {
-            hit = checkIfBulletShotSomething(bulletRef, _aliens, direction);
+            hit = checkIfBulletHitSomething(bullet.get(), _aliens, direction);
         } else if (!hit) {
-            hit = _player->HasCollision(bulletRef, direction);
+            hit = _player->HasCollision(bullet.get(), direction);
             if (hit) {
                 _player->TakeDamage();
             }
         }
 
-        auto bulletPosition = bulletRef.GetPosition();
+        auto bulletPosition = bullet->GetPosition();
         bool bulletReachedEdge = bulletPosition.y <= 0 || bulletPosition.y + bulletPosition.h >= SCREEN_HEIGHT;
         if (bulletReachedEdge || hit) {
-            bulletRef.TakeDamage();
+            bullet->TakeDamage();
         }
     }
 
@@ -82,31 +71,26 @@ template<typename T>
 void GameScene::removeDestroyedObjects(std::vector<std::unique_ptr<T>> &objects) {
     auto newEnd = std::remove_if(objects.begin(), objects.end(), [](const std::unique_ptr<T> &obj) {
         auto &&target = *obj;
-        auto des = target.GetIsDestroyed();
-        if (des) {
-            const std::type_info &objType = typeid(target);
-            printf("<<<%s DESTROYED>>%d\n", objType.name(), static_cast<int>(target.GetId()));
-        }
-        return des;
+        return target.GetIsDestroyed();
     });
     objects.erase(newEnd, objects.end());
     fflush(stdout);
 }
 
 template<typename T>
-bool GameScene::checkIfBulletShotSomething(const Bullet &bullet,
-                                           std::vector<std::unique_ptr<T>> &objects,
-                                           CollisionDirection direction) {
+bool GameScene::checkIfBulletHitSomething(const Bullet *bullet,
+                                          std::vector<std::unique_ptr<T>> &objects,
+                                          CollisionDirection direction) {
     auto checkForCollision = [bullet, direction]
             (const std::unique_ptr<T> &obj) { return (*obj).HasCollision(bullet, direction); };
-    auto shotTarget = std::find_if(objects.begin(), objects.end(), checkForCollision);
+    auto hitTarget = std::find_if(objects.begin(), objects.end(), checkForCollision);
 
-    if (shotTarget == objects.end()) return false;
+    if (hitTarget == objects.end()) return false;
 
-    auto &&target = *shotTarget;
+    auto &&target = *hitTarget;
     target->TakeDamage();
 
-    if(!bullet.GetIsAlien()){
+    if (!bullet->GetIsAlien()) {
         auto killScore = target->GetKillingScore();
         _game->SetScore(_game->GetScore() + killScore);
     }
@@ -116,15 +100,12 @@ bool GameScene::checkIfBulletShotSomething(const Bullet &bullet,
 GameScene::GameScene(Game *game) : Scene(game) {
 }
 
-GameScene::~GameScene() {
-}
-
 void GameScene::Load() {
     auto renderer = _game->GetRenderer();
     placeAliens(renderer);
     placeObstacles(renderer);
 
-    auto renderSize = _game->GetSize();
+    auto renderSize = Game::GetSize();
     int x = (renderSize.w - PlayerWidth) / 2;
     int y = renderSize.h - PlayerHeight - 10;
     _player = std::make_unique<Player>(x, y, PlayerWidth, PlayerHeight, PlayerSpeedAcceleration, PlayerHealth);
@@ -134,19 +115,22 @@ void GameScene::Load() {
 
 void GameScene::OnUpdate() {
     auto renderer = _game->GetRenderer();
-    movePlayer();
+    _player->Move();
     moveAliens(renderer);
     moveBullets();
-    checkForCollisions();
+    applyCollisions();
 
+
+    if (_player->GetIsDestroyed()) {
+        _game->GameOver();
+        return;
+    }
+    if (getIfAliensReachedTarget()) {
+        _game->GameOver();
+        return;
+    }
     if (_aliens.empty()) {
-        //placeAliens(renderer);
-        //todo: return new wave
-        _game->GameOver();
-    } else if (_player->GetIsDestroyed()) {
-        _game->GameOver();
-    } else  if(getIfAliensReachedTarget()){
-        _game->GameOver();
+        placeAliens(renderer);
     }
 }
 
@@ -168,34 +152,37 @@ void GameScene::OnDrawHud() const {
     auto hudManager = _game->GetHudManager();
     auto ren = _game->GetRenderer();
     std::string scoreMessage{"Score:" + std::to_string(_game->GetScore())};
-    hudManager->DrawText(ren, scoreMessage.c_str(), 20, 20);
+    hudManager->DrawText(ren, scoreMessage.c_str(), 20, 5);
 
-    std::string healthMessage{"Health: " + std::to_string(_player->GetHealth()) + "/" + std::to_string(_player->GetMaxHealth())};
-    hudManager->DrawText(ren,healthMessage.c_str(), SCREEN_WIDTH - 250,  20);
+    std::string healthMessage{
+            "Lives: " + std::to_string(_player->GetHealth()) + "/" + std::to_string(_player->GetMaxHealth())};
+    hudManager->DrawText(ren, healthMessage.c_str(), 0, SCREEN_HEIGHT - PlayerHeight);
+
+    std::string escMessage{
+            "Press <ESC> to cancel"};
+    hudManager->DrawText(ren, escMessage.c_str(), SCREEN_WIDTH - 500, 5);
 }
 
 void GameScene::OnLeft() {
-    _player->SetMovementDirection(Left);
+    _player->SetDirection(Left);
 }
 
 void GameScene::OnRight() {
-    _player->SetMovementDirection(Right);
+    _player->SetDirection(Right);
 }
 
 void GameScene::OnResetHorizontal() {
-    _player->SetMovementDirection(None);
+    _player->SetDirection(None);
 }
-
+void GameScene::OnExit() const {
+    _game->GameOver();
+}
 void GameScene::OnPlayerShoot() {
     auto renderer = _game->GetRenderer();
     auto playerPosition = _player->GetPosition();
-    std::size_t bulletX = playerPosition.x + PlayerWidth / 2 - BulletWidth / 2;
-    std::size_t bulletY = playerPosition.y - PlayerHeight + BulletHeight;
-    _bulletCounter++;
-      auto bullet = std::make_unique<Bullet>(_bulletCounter, bulletX, bulletY, BulletWidth, BulletHeight);
-    bullet->SetImage(PlayerBulletImagePath, renderer);
-    bullet->SetSpeed(-BulletSpeed);
-    _bullets.emplace_back(std::move(bullet));
+    auto bulletX = playerPosition.x + PlayerWidth / 2 - BulletWidth / 2;
+    auto bulletY = playerPosition.y - PlayerHeight + BulletHeight;
+    placeBullet(bulletX, bulletY, false, renderer);
 }
 
 void GameScene::placeObstacles(SDL_Renderer *renderer) {
@@ -208,12 +195,12 @@ void GameScene::placeObstacles(SDL_Renderer *renderer) {
 }
 
 void GameScene::placeObstacle(int &id, int x, SDL_Renderer *renderer) {
-    int rows = sizeof(ObstacleShapeMap)/sizeof(ObstacleShapeMap[0]);
-    int cols = sizeof(ObstacleShapeMap[0])/sizeof(ObstacleShapeMap[0][0]);
+    int rows = sizeof(ObstacleShapeMap) / sizeof(ObstacleShapeMap[0]);
+    int cols = sizeof(ObstacleShapeMap[0]) / sizeof(ObstacleShapeMap[0][0]);
 
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
-            if(!ObstacleShapeMap[row][col]) continue;
+            if (!ObstacleShapeMap[row][col]) continue;
             auto newX = ObstacleMargin + x + (col * ObstacleWidth) + (col * ObstacleSpacing) + ObstacleSpacing;
             auto newY = OBSTACLE_POSITION + (row * ObstacleHeight) + (row * ObstacleSpacing) + ObstacleSpacing;
             auto obstacle = std::make_unique<Obstacle>(++id, newX, newY, ObstacleWidth, ObstacleHeight);
@@ -227,8 +214,8 @@ void GameScene::placeObstacle(int &id, int x, SDL_Renderer *renderer) {
 void GameScene::placeAliens(SDL_Renderer *renderer) {
     _aliensWave++;
 
-    for (size_t column = 0; column < AliensColumnsCount; column++) {
-        for (size_t row = 0; row < AliensRowsCount; row++) {
+    for (auto column = 0; column < AliensColumnsCount; column++) {
+        for (auto row = 0; row < AliensRowsCount; row++) {
             auto x = (column * AlienWidth) + (column * AlienSpacing) + AlienSpacing;
             auto y = (row * AlienHeight) + (row * AlienSpacing) + AlienSpacing;
             placeAlien(row + column, x, y, renderer);
@@ -242,33 +229,34 @@ void GameScene::placeAlien(std::size_t id, int x, int y, SDL_Renderer *renderer)
     alien->SetSpeed(AlienSpeed + alienSpeedUp);
     alien->SetKillingScore(AliensKillingScore);
     alien->SetImage(AlienImagePath, renderer);
-    alien->SetMovementDirection(Left);
+    alien->SetDirection(Right);
     _aliens.emplace_back(std::move(alien));
 }
 
-void GameScene::movePlayer() {
-    auto playerSpeed = _player->GetUpdatedCurrentSpeed();
-    auto renderSize = _game->GetSize();
-    auto playerPosition = _player->GetPosition();
-    auto newX = playerPosition.x + playerSpeed;
-    if (newX <= 0 || newX + PlayerWidth >= renderSize.x + renderSize.w) {
-        return;
-    }
-    _player->SetPosition(newX, playerPosition.y);
-}
-
 bool GameScene::getIfAliensReachedTarget() {
-    for (auto &&alien:_aliens) {
-        if(alien->HasCollision(*_player, CollisionDirection::Up)){
+    for (auto &&alien: _aliens) {
+        if (alien->HasCollision(_player.get(), CollisionDirection::Up)) {
             return true;
         }
 
         auto position = alien->GetPosition();
-        if(position.y + position.h >= SCREEN_HEIGHT){
+        if (position.y + position.h >= SCREEN_HEIGHT) {
             return true;
         }
     }
     return false;
+}
+
+void GameScene::placeBullet(int x, int y, bool isAlienBullet, SDL_Renderer *renderer) {
+    _bulletCounter++;
+    auto bullet = std::make_unique<Bullet>(_bulletCounter, x, y, BulletWidth, BulletHeight);
+    float bulletSpeed = isAlienBullet ? BulletSpeed : -BulletSpeed;
+    auto bulletImage = isAlienBullet ? AlienBulletImagePath : PlayerBulletImagePath;
+    bullet->SetImage(bulletImage, renderer);
+    bullet->SetIsAlien(isAlienBullet);
+
+    bullet->SetSpeed(bulletSpeed);
+    _bullets.emplace_back(std::move(bullet));
 }
 
 

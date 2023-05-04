@@ -2,7 +2,9 @@
 #include "../hud_manager.h"
 
 
-GameOverScene::GameOverScene(Game *game, std::string username) : Scene(game), _username(std::move(username)) {
+GameOverScene::GameOverScene(Game *game, std::string username)
+: Scene(game), _username(std::move(username))
+{
     _scoreManager = std::make_unique<ScoreManager>();
 }
 
@@ -18,7 +20,7 @@ void GameOverScene::OnDrawHud() const {
 
     hudManager->DrawText(ren, "Game Over", TITLE_X, TITLE_Y);
 
-    for (int i = 1; i <= _scoreEntries.size(); i++) {
+    for (auto i = 1; i <= _scoreEntries.size(); i++) {
         auto entry = _scoreEntries[i-1];
         std::string scoreMessage{entry.name + " : " + std::to_string(entry.score)};
         hudManager->DrawText(ren, scoreMessage.c_str(), TITLE_X, TITLE_Y + (USERNAME_MARGIN * i));

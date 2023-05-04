@@ -7,7 +7,9 @@ class Scene {
 protected:
     Game *_game;
 public:
-    explicit Scene(Game *game) : _game(game) {}
+    explicit Scene(Game *game) : _game(game)
+    {
+    }
 
     virtual ~Scene() = default;
 

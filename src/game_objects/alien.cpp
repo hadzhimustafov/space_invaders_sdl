@@ -13,11 +13,21 @@ bool Alien::GetIfTimeToShoot()
 
 bool Alien::WillReachEdge(int leftEdge, int rightEdge)
 {
-    auto x = _position.x + _speed;
+    auto x = _position.x + static_cast<int>(GetCurrentSpeed());
     if (x <= leftEdge || x + _position.w >= rightEdge)
     {
         return true;
     }
 
     return false;
+}
+
+void Alien::Move() {
+    _position.x = _position.x + static_cast<int>(GetCurrentSpeed());
+}
+
+void Alien::ToggleDirection() {
+    auto direction = _direction == Left ? Right : Left;
+    SetDirection(direction);
+    _position.y += _position.h;
 }
